@@ -4,20 +4,20 @@ df <- read.table("atividade2/dataset_PT.csv", header = TRUE, sep = ';', stringsA
 split <- df[, 1:10]
 equips <- list(split$Equipamentos_para_Aulas_Online)
 
-equips_col <- split[, 7]
+# Variavel dependente -> tempo de estudo individual
+dependent <- split[, 7]
 
-global_mean <- mean(equips_col)
-global_sd <- sd(equips_col)
+global_mean <- mean(dependent)
+global_sd <- sd(dependent)
 
-# equip_mean <- aggregate(equips_col, equips, mean)
-# equip_sd <- aggregate(equips_col, equips, sd)
+equip_mean <- aggregate(dependent, equips, mean)
+equip_sd <- aggregate(dependent, equips, sd)
 
-y <- dnorm(equips_col, global_mean, global_sd)
+y <- dnorm(dependent, global_mean, global_sd)
 
 # plot do grafico para verificar se a coluna desejada tem distribuicao normal
-plot(equips_col, y)
+plot(dependent, y)
 
 anova <- aov(Tempo_em_estudo_individual ~ Equipamentos_para_Aulas_Online, data = df)
 
 print(summary(anova))
-
