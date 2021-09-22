@@ -1,5 +1,5 @@
 # Carrega o dataset
-df <- read.table("atividade2/dataset_PT.csv", header = TRUE, sep = ';', stringsAsFactors = FALSE)
+df <- read.table("MQA2021 - grupo 07 - dataset.csv", header = TRUE, sep = ';', stringsAsFactors = FALSE)
 
 split <- df[, 1:10]
 equips <- list(split$Equipamentos_para_Aulas_Online)
