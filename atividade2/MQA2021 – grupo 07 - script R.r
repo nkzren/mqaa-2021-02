@@ -22,4 +22,6 @@ plot(dependent, y)
 
 anova <- aov(Tempo_em_estudo_individual ~ Equipamentos_para_Aulas_Online, data = df)
 
+plot(anova)
+
 print(summary(anova))
