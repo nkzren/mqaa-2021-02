@@ -5,13 +5,15 @@ split <- df[, 1:10]
 equips <- list(split$Equipamentos_para_Aulas_Online)
 
 # Variavel dependente -> tempo de estudo individual
-dependent <- split[, 7]
+dependent <- split[, 4]
 
 global_mean <- mean(dependent)
 global_sd <- sd(dependent)
 
 equip_mean <- aggregate(dependent, equips, mean)
 equip_sd <- aggregate(dependent, equips, sd)
+
+boxplot(dependent~split$Equipamentos_para_Aulas_Online)
 
 y <- dnorm(dependent, global_mean, global_sd)
 
