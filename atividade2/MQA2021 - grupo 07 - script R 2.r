@@ -1,12 +1,12 @@
-######################## Regress??o Linear Simples #########################
-
+######################### Regress??o Linear M??ltipla #########################
 
 # Passo 1: Carregar os pacotes que ser??o usados
 
 if(!require(pacman)) install.packages("pacman")
 library(pacman)
 
-pacman::p_load(dplyr, ggplot2, car, rstatix, lmtest, ggpubr)
+pacman::p_load(dplyr, car, rstatix, lmtest, ggpubr,
+               QuantPsyc, psych, scatterplot3d)
 
 
 # Passo 2: Carregar o banco de dados
@@ -20,27 +20,15 @@ glimpse(dados)                              # Visualiza????o de um resumo dos da
 
 
 
-# Passo 3: Verifica????o dos pressupostos para a regress??o linear
-
-
-## Rela????o linear entre a VD e a VI:
-### VD: Vendas
-### VI: Publicidade
-
-plot(dados$Tempo_em_exercicios_fisicos, dados$Tempo_de_sono)
-
 
 ## Constru????o do modelo:
-mod <- lm(Tempo_de_sono ~ Tempo_em_exercicios_fisicos, dados)
+mod <- lm(Tempo_de_sono ~ Tempo_de_Aulas_Online + Tempo_em_estudo_individual, dados)
 
 
 ## An??lise gr??fica:
-
 par(mfrow=c(2,2))
 
 plot(mod)
-
-### Interpreta????o: https://data.library.virginia.edu/diagnostic-plots/
 
 par(mfrow=c(1,1))
 
@@ -61,20 +49,63 @@ durbinWatsonTest(mod)
 bptest(mod)
 
 
+## Aus??ncia de Multicolinearidade
+vif(mod)
+### Multicolinearidade: VIF > 10
+
+
+###### Cria????o de um segundo modelo
+mod2 <- lm(Tempo_de_sono ~ Tempo_de_Aulas_Online, dados)
+
+
 # Passo 4: An??lise do modelo
 summary(mod)
+summary(mod2)
+
+
+## Obten????o dos coeficientes padronizados
+lm.beta(mod)
+lm.beta(mod2)
+
+
+## Obten????o do IC 95% para os coeficientes
+confint(mod)
+confint(mod2)
+
+
+# Compara????o de modelos
+
+## AIC e BIC - Compara????o entre quaisquer modelos
+AIC(mod, mod2)
+BIC(mod, mod2)
+
+
+## Para compara????o entre modelos aninhados
+
+anova(mod, mod2)
+
+### O melhor ser?? o com menor valor de RSS (residual sum of squares)
 
 
 
+# Passo 5: Gr??fico de dispers??o
+graph <- scatterplot3d(dados$Tempo_de_sono ~ dados$Tempo_de_Aulas_Online + dados$Tempo_em_estudo_individual,
+                       pch = 16, angle = 70, color = "steelblue", box = FALSE,
+                       xlab="Tempo_de_Aulas_Online", ylab="Tempo_em_estudo_individual", zlab="Tempo_de_sono")
+graph$plane3d(mod, col="black", draw_polygon = TRUE)
 
 
-ggplot(data = dados, mapping = aes(x = Publicidade, y = Vendas)) +
-  geom_point() +
-  geom_smooth(method = "lm", col = "red") +
-  stat_regline_equation(aes(label = paste(..eq.label.., ..adj.rr.label..,
-                                          sep = "*plain(\",\")~~")),
-                        label.x = 0, label.y = 400) +
-  theme_classic()
+
+##################### M??todos de sele????o de modelos ###########################
+
+pacman::p_load(MASS)
 
 
-# https://pt.stackoverflow.com/questions/6979/como-colocar-a-equa%C3%A7%C3%A3o-da-regress%C3%A3o-em-um-gr%C3%A1fico
+mod.inicial <- lm(Notas ~ Tempo_Rev + Tempo_Sono, data = dados)
+mod.simples <- lm(Notas ~ 1, data = dados)
+
+stepAIC(mod.inicial, scope = list(upper = mod.inicial,
+                                  lower = mod.simples), direction = "backward")
+
+
+# Material consultado: https://rpubs.com/bensonsyd/385183
